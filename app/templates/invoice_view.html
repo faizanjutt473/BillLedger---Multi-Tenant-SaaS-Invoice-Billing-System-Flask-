@@ -1,0 +1,56 @@
+{% extends "base.html" %}{% from "_field.html" import field %}
+{% block title %}{{ inv.number }} - BillLedger{% endblock %}
+{% block heading %}Invoice {{ inv.number }}{% endblock %}
+{% block content %}
+<div class="head noprint" style="max-width:760px">
+  <a class="btn ghost" href="{{ url_for('main.invoices') }}">Back to invoices</a>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    {% if inv.status == 'draft' %}
+    <form method="post" action="{{ url_for('main.invoice_send', invoice_id=inv.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost">Mark as sent</button></form>
+    <form method="post" action="{{ url_for('main.invoice_delete', invoice_id=inv.id) }}" onsubmit="return confirm('Delete this draft invoice?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost">Delete</button></form>
+    {% endif %}
+    <a class="btn ghost" href="{{ url_for('main.invoice_pdf_download', invoice_id=inv.id) }}">Download PDF</a>
+    <form method="post" action="{{ url_for('main.invoice_email', invoice_id=inv.id) }}" onsubmit="return confirm('Email this invoice to the client?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn">Email to client</button></form>
+  </div>
+</div>
+<div class="card doc">
+  <div class="head"><div><h2 style="font-size:22px">Invoice {{ inv.number }}</h2><span class="tag {{ inv.status }}">{{ inv.status }}</span></div>
+  <div style="text-align:right"><b>{{ inv.tenant.name }}</b><br><small>{{ inv.tenant.email or '' }}</small></div></div>
+  <div class="form2"><div><small>Billed to</small><br><b>{{ inv.client.name }}</b><br><small>{{ inv.client.email or '' }}</small></div>
+  <div><small>Issued {{ inv.issue_date }}</small><br><small>Due {{ inv.due_date }}</small></div></div>
+  <table class="tbl"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>
+  {% for it in inv.items %}
+  <tr><td>{{ it.description }}</td><td class="r">{{ '{:g}'.format(it.quantity) }}</td><td class="r">{{ it.unit_price|money }}</td><td class="r">{{ it.amount|money }}</td></tr>
+  {% endfor %}
+  </tbody></table>
+  <div class="sum">
+    <div><span>Subtotal</span><span>{{ inv.subtotal|money }}</span></div>
+    <div><span>Tax ({{ '{:g}'.format(inv.tax_rate or 0) }}%)</span><span>{{ inv.tax_amount|money }}</span></div>
+    <div><span>Total</span><span>{{ inv.total|money }}</span></div>
+    <div><span>Paid</span><span>{{ inv.paid_amount|money }}</span></div>
+    <div class="tot"><span>Balance due</span><span>{{ balance|money }}</span></div>
+  </div>
+  {% if inv.notes %}<p style="margin-top:18px;color:var(--mut)">{{ inv.notes }}</p>{% endif %}
+</div>
+
+<div class="card doc noprint" style="margin-top:16px">
+  <h2>Payments</h2>
+  <table class="tbl"><thead><tr><th>Date</th><th>Method</th><th>Reference</th><th class="r">Amount</th><th></th></tr></thead><tbody>
+  {% for p in inv.payments %}
+  <tr><td>{{ p.paid_on }}</td><td>{{ p.method.replace('_', ' ') }}</td><td>{{ p.reference or '-' }}</td><td class="r">{{ p.amount|money }}</td>
+  <td class="r"><form method="post" action="{{ url_for('main.payment_delete', payment_id=p.id) }}" onsubmit="return confirm('Remove this payment?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost">Remove</button></form></td></tr>
+  {% else %}
+  <tr><td colspan="5" class="empty">No payments recorded yet.</td></tr>
+  {% endfor %}
+  </tbody></table>
+  {% if inv.status == 'draft' %}
+  <p style="color:var(--mut);margin-top:14px">Mark the invoice as sent to start recording payments.</p>
+  {% elif balance > 0 %}
+  <form method="post" action="{{ url_for('main.payment_add', invoice_id=inv.id) }}" style="margin-top:16px" novalidate>
+    {{ pform.hidden_tag() }}
+    <div class="form2">{{ field(pform.amount, step="0.01") }}{{ field(pform.paid_on) }}{{ field(pform.method) }}{{ field(pform.reference) }}</div>
+    <button class="btn">Record payment</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% from "_field.html" import field %}
+{% block title %}Recurring - BillLedger{% endblock %}
+{% block heading %}Recurring invoices{% endblock %}
+{% block content %}
+{% if not form.client_id.choices %}
+<div class="card empty">Add a client first, then create a recurring plan.<br><br><a class="btn" href="{{ url_for('main.clients') }}">Add a client</a></div>
+{% else %}
+<form method="post" class="card" style="margin-bottom:18px" novalidate>
+  {{ form.hidden_tag() }}
+  <h2>New recurring plan</h2>
+  <div class="form2">{{ field(form.client_id) }}{{ field(form.description) }}{{ field(form.amount, step="0.01") }}{{ field(form.frequency) }}{{ field(form.next_run) }}</div>
+  <button class="btn">Create plan</button>
+</form>
+{% endif %}
+<div class="head">
+  <p style="color:var(--mut)">Invoices and reminders go out when the daily job runs. You can run it now to test.</p>
+  <form method="post" action="{{ url_for('main.recurring_run') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost">Run now</button></form>
+</div>
+<div class="card"><table class="tbl"><thead><tr><th>Client and plan</th><th>Repeats</th><th>Next invoice</th><th class="r">Amount</th><th>Schedule</th></tr></thead><tbody>
+{% for p in plans %}
+<tr><td><b>{{ p.client.name }}</b><br><small>{{ p.description }}</small></td><td>{{ p.frequency }}</td><td>{{ p.next_run }}</td><td class="r">{{ p.amount|money }}</td>
+<td style="white-space:nowrap">
+  <span class="tag {{ 'paid' if p.active else 'draft' }}">{{ 'active' if p.active else 'paused' }}</span>
+  <form method="post" action="{{ url_for('main.recurring_toggle', plan_id=p.id) }}" style="display:inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost">{{ 'Pause' if p.active else 'Resume' }}</button></form>
+  <form method="post" action="{{ url_for('main.recurring_delete', plan_id=p.id) }}" style="display:inline" onsubmit="return confirm('Delete this plan?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost">Delete</button></form>
+</td></tr>
+{% else %}
+<tr><td colspan="5" class="empty">No recurring plans yet.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% from "_field.html" import field %}
+{% block title %}Team - BillLedger{% endblock %}
+{% block heading %}Team{% endblock %}
+{% block content %}
+<form method="post" class="card" style="margin-bottom:18px" novalidate>
+  {{ form.hidden_tag() }}
+  <h2>Add a team member</h2>
+  <div class="form2">{{ field(form.name) }}{{ field(form.email) }}{{ field(form.role) }}{{ field(form.client_id) }}</div>
+  <div style="max-width:380px;margin-bottom:16px">{{ field(form.password, autocomplete="new-password") }}</div>
+  <button class="btn">Add member</button>
+</form>
+<div class="card"><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>
+{% for m in members %}
+<tr><td><b>{{ m.name }}</b>{% if m.id == current_user.id %} <small>(you)</small>{% endif %}</td><td>{{ m.email }}</td>
+<td>
+  {% if m.role == 'client' %}client ({{ names.get(m.client_id, 'unlinked') }})
+  {% elif m.id == current_user.id %}{{ m.role }}
+  {% else %}
+  <form method="post" action="{{ url_for('main.team_role', user_id=m.id) }}" style="display:flex;gap:8px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select name="role" aria-label="Role" style="width:150px"><option value="accountant" {{ 'selected' if m.role == 'accountant' }}>accountant</option><option value="admin" {{ 'selected' if m.role == 'admin' }}>admin</option></select>
+    <button class="btn ghost">Save</button>
+  </form>
+  {% endif %}
+</td>
+<td class="r">{% if m.id != current_user.id %}
+  <form method="post" action="{{ url_for('main.team_remove', user_id=m.id) }}" onsubmit="return confirm('Remove this member?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost">Remove</button></form>
+{% endif %}</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

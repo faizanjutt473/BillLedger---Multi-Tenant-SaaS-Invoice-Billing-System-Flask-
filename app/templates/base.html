@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}BillLedger{% endblock %}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body><div class="shell">
+<aside class="side" id="side">
+  <a class="logo" href="{{ url_for('main.home') }}" style="display:block">Bill<b>Ledger</b></a>
+  <div class="tenant"><span style="color:#9fb8b5;font-size:12px">Company</span><br><b>{{ current_user.tenant.name }}</b></div>
+  <nav class="nav">
+    {% if current_user.role == 'client' %}
+    <a href="{{ url_for('main.portal') }}" class="{{ 'on' if active == 'portal' }}">My invoices</a>
+    {% else %}
+    <a href="{{ url_for('main.dashboard') }}" class="{{ 'on' if active == 'dashboard' }}">Dashboard</a>
+    <a href="{{ url_for('main.invoices') }}" class="{{ 'on' if active == 'invoices' }}">Invoices</a>
+    <a href="{{ url_for('main.invoice_new') }}" class="{{ 'on' if active == 'new' }}">New invoice</a>
+    <a href="{{ url_for('main.clients') }}" class="{{ 'on' if active == 'clients' }}">Clients</a>
+    <a href="{{ url_for('main.payments') }}" class="{{ 'on' if active == 'payments' }}">Payments</a>
+    <a href="{{ url_for('main.recurring') }}" class="{{ 'on' if active == 'recurring' }}">Recurring</a>
+    {% if current_user.role == 'admin' %}<a href="{{ url_for('main.team') }}" class="{{ 'on' if active == 'team' }}">Team</a>{% endif %}
+    {% endif %}
+  </nav>
+  <div class="me">{{ current_user.name }} ({{ current_user.role }})
+    <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn ghost" style="margin-top:8px;color:#fff;border-color:rgba(255,255,255,.3)">Log out</button></form>
+  </div>
+</aside>
+<div class="main"><header class="top"><button class="btn ghost menu" onclick="document.getElementById('side').classList.toggle('open')">Menu</button><h1>{% block heading %}{% endblock %}</h1>{% if current_user.role != 'client' %}<a class="btn" href="{{ url_for('main.invoice_new') }}">New invoice</a>{% endif %}</header>
+<div class="wrap">{% include "_flash.html" %}{% block content %}{% endblock %}</div></div></div>
+{% block scripts %}{% endblock %}</body></html>

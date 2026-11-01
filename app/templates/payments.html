@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Payments - BillLedger{% endblock %}
+{% block heading %}Payments{% endblock %}
+{% block content %}
+<div class="card stat" style="max-width:320px;margin-bottom:18px"><small>Total received</small><strong>{{ total|money }}</strong></div>
+<div class="card"><table class="tbl"><thead><tr><th>Date</th><th>Invoice</th><th>Client</th><th>Method</th><th>Reference</th><th class="r">Amount</th></tr></thead><tbody>
+{% for p in payments %}
+<tr><td>{{ p.paid_on }}</td><td><a href="{{ url_for('main.invoice_view', invoice_id=p.invoice_id) }}"><b>{{ p.invoice.number }}</b></a></td><td>{{ p.invoice.client.name }}</td><td>{{ p.method.replace('_', ' ') }}</td><td>{{ p.reference or '-' }}</td><td class="r">{{ p.amount|money }}</td></tr>
+{% else %}
+<tr><td colspan="6" class="empty">No payments yet. Open an invoice and record a payment.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

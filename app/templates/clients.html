@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% from "_field.html" import field %}
+{% block title %}Clients - BillLedger{% endblock %}
+{% block heading %}Clients{% endblock %}
+{% block content %}
+<form method="post" class="card" style="margin-bottom:18px" novalidate>
+  {{ form.hidden_tag() }}
+  <h2>Add a client</h2>
+  <div class="form2">{{ field(form.name) }}{{ field(form.email) }}{{ field(form.phone) }}{{ field(form.address) }}</div>
+  <button class="btn">Add client</button>
+</form>
+<div class="card"><table class="tbl"><thead><tr><th>Client</th><th>Email</th><th class="r">Invoices</th><th class="r">Outstanding</th><th></th></tr></thead><tbody>
+{% for c in clients %}
+<tr><td><b>{{ c.name }}</b></td><td>{{ c.email or '-' }}</td><td class="r">{{ c.invoices|length }}</td><td class="r">{{ c.outstanding|money }}</td><td class="r"><a class="btn ghost" href="{{ url_for('main.client_edit', client_id=c.id) }}">Edit</a></td></tr>
+{% else %}
+<tr><td colspan="5" class="empty">No clients yet. Add your first client above.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

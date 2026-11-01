@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Invoices - BillLedger{% endblock %}
+{% block heading %}Invoices{% endblock %}
+{% block content %}
+<div class="head">
+  <div class="tabs">
+    {% for key, label in [('all','All'),('draft','Draft'),('sent','Sent'),('paid','Paid'),('overdue','Overdue')] %}
+    <a href="{{ url_for('main.invoices', status=key, q=q) }}" class="{{ 'on' if status == key }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+  <form method="get" style="display:flex;gap:8px"><input type="hidden" name="status" value="{{ status }}"><input name="q" value="{{ q }}" placeholder="Search client or number" aria-label="Search" style="max-width:260px"><button class="btn ghost">Search</button></form>
+</div>
+<div class="card"><table class="tbl"><thead><tr><th>Number</th><th>Client</th><th>Due</th><th class="r">Amount</th><th>Status</th></tr></thead><tbody>
+{% for i in invoices %}
+<tr><td><a href="{{ url_for('main.invoice_view', invoice_id=i.id) }}"><b>{{ i.number }}</b></a></td><td>{{ i.client.name }}</td><td>{{ i.due_date }}</td><td class="r">{{ i.total|money }}</td><td><span class="tag {{ i.status }}">{{ i.status }}</span></td></tr>
+{% else %}
+<tr><td colspan="5" class="empty">No invoices here yet. <a href="{{ url_for('main.invoice_new') }}" style="text-decoration:underline">Create your first invoice</a>.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% from "_field.html" import field %}
+{% block title %}Edit client - BillLedger{% endblock %}
+{% block heading %}Edit client{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:760px" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="form2">{{ field(form.name) }}{{ field(form.email) }}{{ field(form.phone) }}{{ field(form.address) }}</div>
+  <button class="btn">Save changes</button>
+  <a class="btn ghost" href="{{ url_for('main.clients') }}">Cancel</a>
+</form>
+<form method="post" action="{{ url_for('main.client_delete', client_id=client.id) }}" style="margin-top:14px" onsubmit="return confirm('Delete this client?')">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn ghost">Delete client</button>
+</form>
+{% endblock %}

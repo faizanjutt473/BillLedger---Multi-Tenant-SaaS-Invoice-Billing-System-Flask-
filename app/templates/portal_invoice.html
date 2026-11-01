@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ inv.number }} - BillLedger{% endblock %}
+{% block heading %}Invoice {{ inv.number }}{% endblock %}
+{% block content %}
+<div class="head noprint" style="max-width:760px">
+  <a class="btn ghost" href="{{ url_for('main.portal') }}">Back to my invoices</a>
+  <a class="btn" href="{{ url_for('main.portal_invoice_pdf', invoice_id=inv.id) }}">Download PDF</a>
+</div>
+<div class="card doc">
+  <div class="head"><div><h2 style="font-size:22px">Invoice {{ inv.number }}</h2><span class="tag {{ inv.status }}">{{ inv.status }}</span></div>
+  <div style="text-align:right"><b>{{ inv.tenant.name }}</b><br><small>{{ inv.tenant.email or '' }}</small></div></div>
+  <div class="form2"><div><small>Billed to</small><br><b>{{ inv.client.name }}</b></div>
+  <div><small>Issued {{ inv.issue_date }}</small><br><small>Due {{ inv.due_date }}</small></div></div>
+  <table class="tbl"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>
+  {% for it in inv.items %}
+  <tr><td>{{ it.description }}</td><td class="r">{{ '{:g}'.format(it.quantity) }}</td><td class="r">{{ it.unit_price|money }}</td><td class="r">{{ it.amount|money }}</td></tr>
+  {% endfor %}
+  </tbody></table>
+  <div class="sum">
+    <div><span>Subtotal</span><span>{{ inv.subtotal|money }}</span></div>
+    <div><span>Tax ({{ '{:g}'.format(inv.tax_rate or 0) }}%)</span><span>{{ inv.tax_amount|money }}</span></div>
+    <div><span>Total</span><span>{{ inv.total|money }}</span></div>
+    <div><span>Paid</span><span>{{ inv.paid_amount|money }}</span></div>
+    <div class="tot"><span>Balance due</span><span>{{ balance|money }}</span></div>
+  </div>
+  {% if inv.notes %}<p style="margin-top:18px;color:var(--mut)">{{ inv.notes }}</p>{%

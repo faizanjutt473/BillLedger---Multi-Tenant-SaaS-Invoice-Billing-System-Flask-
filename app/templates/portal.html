@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}My invoices - BillLedger{% endblock %}
+{% block heading %}My invoices{% endblock %}
+{% block content %}
+<div class="card"><table class="tbl"><thead><tr><th>Number</th><th>Issued</th><th>Due</th><th class="r">Amount</th><th>Status</th></tr></thead><tbody>
+{% for i in invoices %}
+<tr><td><a href="{{ url_for('main.portal_invoice', invoice_id=i.id) }}"><b>{{ i.number }}</b></a></td><td>{{ i.issue_date }}</td><td>{{ i.due_date }}</td><td class="r">{{ i.total|money }}</td><td><span class="tag {{ i.status }}">{{ i.status }}</span></td></tr>
+{% else %}
+<tr><td colspan="5" class="empty">No invoices have been sent to you yet.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

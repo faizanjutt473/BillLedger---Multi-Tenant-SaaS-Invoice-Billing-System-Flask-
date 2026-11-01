@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - BillLedger{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block content %}
+<div class="stats">
+  {% for label, value in stats %}
+  <div class="card stat {{ 'due' if loop.last }}"><small>{{ label }}</small><strong>Rs {{ '{:,.0f}'.format(value) }}</strong></div>
+  {% endfor %}
+</div>
+<div class="card"><h2>Recent invoices</h2>
+<table class="tbl"><thead><tr><th>Number</th><th>Client</th><th>Due</th><th class="r">Amount</th><th>Status</th></tr></thead><tbody>
+{% for i in recent %}
+<tr><td><a href="{{ url_for('main.invoice_view', invoice_id=i.id) }}"><b>{{ i.number }}</b></a></td><td>{{ i.client.name }}</td><td>{{ i.due_date }}</td><td class="r">Rs {{ '{:,.0f}'.format(i.total) }}</td><td><span class="tag {{ i.status }}">{{ i.status }}</span></td></tr>
+{% else %}
+<tr><td colspan="5" class="empty">No invoices yet. Invoices will appear here once you create them.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

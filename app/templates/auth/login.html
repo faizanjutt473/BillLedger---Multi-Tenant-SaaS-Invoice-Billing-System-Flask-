@@ -1,0 +1,10 @@
+{% extends "auth_base.html" %}{% from "_field.html" import field %}
+{% block title %}Log in - BillLedger{% endblock %}
+{% block form %}
+<h2>Log in to your company</h2>{% include "_flash.html" %}
+{{ field(form.email, autocomplete="email") }}
+{{ field(form.password, autocomplete="current-password") }}
+<label class="chk">{{ form.remember }} Remember me</label>
+<button class="btn">Log in</button>
+<p style="color:var(--mut);font-size:14px">New here? <a href="{{ url_for('auth.register') }}" style="text-decoration:underline">Create your company</a></p>
+{% endblock %}
